@@ -21,35 +21,6 @@ void Ins::test_control()
 	tmp.discrete.control = true;
 	tmp.discrete.INS_serviceability = true;
 	tmp.discrete.no_initial_data = true;
-
-//	printf("\n"
-//		   "0:  %15u\n"
-//		   "1:  %15u\n"
-//		   "2:  %15u\n"
-//		   "3:  %15u\n"
-//		   "4:  %15u\n"
-//		   "5:  %15u\n"
-//		   "6:  %15u\n"
-//		   "7:  %15u\n"
-//		   "8:  %15u\n"
-//		   "9:  %15u\n"
-//		   "10: %15u\n"
-//		   "11: %15u\n"
-//		   "12: %15u\n",
-//		   packed_state[0].raw,
-//		   packed_state[1].raw,
-//		   packed_state[2].raw,
-//		   packed_state[3].raw,
-//		   packed_state[4].raw,
-//		   packed_state[5].raw,
-//		   packed_state[6].raw,
-//		   packed_state[7].raw,
-//		   packed_state[8].raw,
-//		   packed_state[9].raw,
-//		   packed_state[10].raw,
-//		   packed_state[11].raw,
-//		   packed_state[12].raw);
-
 	mutex->lock();
 	packed_state[12].raw = tmp.raw;
 	mutex->unlock();
@@ -64,34 +35,6 @@ void Ins::prepare()
 	tmp.discrete.preparation = true;
 	tmp.discrete.INS_serviceability = true;
 	tmp.discrete.no_initial_data = false;
-
-//	printf("\n"
-//		   "0:  %15u\n"
-//		   "1:  %15u\n"
-//		   "2:  %15u\n"
-//		   "3:  %15u\n"
-//		   "4:  %15u\n"
-//		   "5:  %15u\n"
-//		   "6:  %15u\n"
-//		   "7:  %15u\n"
-//		   "8:  %15u\n"
-//		   "9:  %15u\n"
-//		   "10: %15u\n"
-//		   "11: %15u\n"
-//		   "12: %15u\n",
-//		   packed_state[0].raw,
-//		   packed_state[1].raw,
-//		   packed_state[2].raw,
-//		   packed_state[3].raw,
-//		   packed_state[4].raw,
-//		   packed_state[5].raw,
-//		   packed_state[6].raw,
-//		   packed_state[7].raw,
-//		   packed_state[8].raw,
-//		   packed_state[9].raw,
-//		   packed_state[10].raw,
-//		   packed_state[11].raw,
-//		   packed_state[12].raw);
 	mutex->lock();
 	for (int i = 0; i < 12; i++)
 		packed_state[i].bnr.SM = 3;
@@ -109,36 +52,9 @@ void Ins::navigation()
 	tmp.discrete.INS_serviceability = true;
 	tmp.discrete.no_initial_data = false;
 	tmp.discrete.readiness = true;
-//	printf("\n"
-//		   "0:  %15u\n"
-//		   "1:  %15u\n"
-//		   "2:  %15u\n"
-//		   "3:  %15u\n"
-//		   "4:  %15u\n"
-//		   "5:  %15u\n"
-//		   "6:  %15u\n"
-//		   "7:  %15u\n"
-//		   "8:  %15u\n"
-//		   "9:  %15u\n"
-//		   "10: %15u\n"
-//		   "11: %15u\n"
-//		   "12: %15u\n",
-//		   packed_state[0].raw,
-//		   packed_state[1].raw,
-//		   packed_state[2].raw,
-//		   packed_state[3].raw,
-//		   packed_state[4].raw,
-//		   packed_state[5].raw,
-//		   packed_state[6].raw,
-//		   packed_state[7].raw,
-//		   packed_state[8].raw,
-//		   packed_state[9].raw,
-//		   packed_state[10].raw,
-//		   packed_state[11].raw,
-//		   packed_state[12].raw);
 	mutex->lock();
 
-	packed_state[0].raw = direct_transform(20, 0310, 22.5);
+	packed_state[0].raw = direct_transform(20, 0310, 22.567891);
 	packed_state[1].raw = direct_transform(20, 0311, 22.5);
 	packed_state[2].raw = direct_transform(20, 0361, 3048);
 	packed_state[3].raw = direct_transform(20, 0314, 10);

@@ -10,10 +10,6 @@
 
 #define RemoveBits(x, p) (float_t) (((float_t) ((x) * ((p)+1))) - (float_t) (((float_t) ((x) * ((p)+1))) - (x)))
 
-//int*		massbin(double max_value, int max_digit, int digit, double value);
-//int			bindec(double max_value, int max_digit, int digit, double value);
-//double*		decbin(int dec, int max_digit);
-//int			massdec(double max_value, int max_digit, int digit, int dec);
 uint32_t	direct_transform(int bits, uint32_t address, float value);
 float 		reverse_transform(int bits, ARINC value);
 

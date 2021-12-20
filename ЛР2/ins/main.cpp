@@ -25,33 +25,6 @@ ssize_t send_data(arg_t args)
 	int sock_fd = args.sock_fd;
 	struct sockaddr_in server_address = args.server_address;
 	ssize_t err;
-	printf("\n"
-		   "0:  %15u\n"
-		   "1:  %15u\n"
-		   "2:  %15u\n"
-		   "3:  %15u\n"
-		   "4:  %15u\n"
-		   "5:  %15u\n"
-		   "6:  %15u\n"
-		   "7:  %15u\n"
-		   "8:  %15u\n"
-		   "9:  %15u\n"
-		   "10: %15u\n"
-		   "11: %15u\n"
-		   "12: %15u\n",
-		   args.ins->packed_state[0].bnr.height,
-		   args.ins->packed_state[1].bnr.height,
-		   args.ins->packed_state[2].bnr.height,
-		   args.ins->packed_state[3].bnr.height,
-		   args.ins->packed_state[4].bnr.height,
-		   args.ins->packed_state[5].bnr.height,
-		   args.ins->packed_state[6].bnr.height,
-		   args.ins->packed_state[7].bnr.height,
-		   args.ins->packed_state[8].bnr.height,
-		   args.ins->packed_state[9].bnr.height,
-		   args.ins->packed_state[10].bnr.height,
-		   args.ins->packed_state[11].bnr.height,
-		   args.ins->packed_state[12].discrete.address);
 
 	args.m->lock();
 	err = sendto(sock_fd, (args.ins->packed_state), (13 * sizeof(ARINC)), 0, (const struct sockaddr *) &server_address, sizeof(server_address));
