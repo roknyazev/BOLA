@@ -51,6 +51,7 @@ int main()
 	Ins 				*ins;
 	Aircraft			*aircraft;
 
+	aircraft = new Aircraft(0, 0, 0, 0, 200);
 	m = new std::mutex();
 	ins = new Ins(m, 2ms, 1000ms, 1000ms, aircraft);
 
@@ -76,7 +77,8 @@ int main()
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-	std::thread	thread(ins_work, std::ref(*ins));
+	std::thread	thread1(ins_work, std::ref(*ins));
+	std::thread	thread2(start_aircraft, std::ref(*aircraft));
 	while (true)
 	{
 		err = timer<arg_t>(send_data, arg, duration);

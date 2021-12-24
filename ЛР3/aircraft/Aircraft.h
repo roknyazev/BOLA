@@ -7,38 +7,44 @@
 #include <random>
 #include "../Timer.h"
 #include "../transform.h"
+#include "../mth.h"
 
 class Aircraft
 {
 private:
 
-	float x;
-	float y;
-	float v;
+	double x;
+	double y;
+	double v;
 
-	float lat;
-	float lon;
-	float alt;
-	float az; //курс истинный
-	float pitch; //тангаж
-	float roll; //крен
-	float v_x; // скорость север
-	float v_y; // скорость восток
-	float v_z; // вертикальная скорость
-	float a_x;
-	float a_y;
-	float a_z;
+	double lat;
+	double lon;
+	double alt;
+	double az; //курс истинный
+	double pitch; //тангаж
+	double roll; //крен
+
+	double a_x;
+	double a_y;
+	double a_z;
+
+	double rotation_matrix[9];
+	double *vel; // скорость север, скорость восток, вертикальная скорость
 private:
-	float state[12];
+	double state[12];
 
-	[[noreturn]] void fly();
+
 public:
-	Aircraft(float lat, float lon, float alt, float az, float v0);
+	Aircraft(double lat, double lon, double alt, double az, double v0);
+	~Aircraft();
 	Aircraft();
+	[[noreturn]] void fly();
 	bool start;
-	const float *get_state() const;
+	const double *get_state() const;
+	void rotate(double d_pitch, double azimuth);
 };
 
-
+double pitch_control(double t, double y);
+void start_aircraft(Aircraft &aircraft);
 
 #endif //LW1_AIRCRAFT_H

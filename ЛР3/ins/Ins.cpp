@@ -53,7 +53,11 @@ void Ins::navigation()
 	tmp.discrete.no_initial_data = false;
 	tmp.discrete.readiness = true;
 	if (!aircraft->start)
+	{
 		aircraft->start = true;
+	}
+
+
 	mutex->lock();
 
 	packed_state[0].raw = direct_transform(20, 0310, -122.513);
