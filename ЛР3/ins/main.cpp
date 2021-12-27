@@ -56,17 +56,17 @@ int main()
 	auto tmp3 = new double[2];
 
 
-	tmp1[0] = 37.375312;
-	tmp1[1] = 55.880408;
+	tmp1[0] = 5600.0;
+	tmp1[1] = 5600.0;
 	checkpoints->push_back(tmp1);
-	tmp2[0] = 37.409644;
-	tmp2[1] = 55.744307;
+	tmp2[0] = -5500.744307;
+	tmp2[1] = 3700.409644;
 	checkpoints->push_back(tmp2);
-	tmp3[0] = 37.218756;
-	tmp3[1] = 55.599954;
+	tmp3[0] = 5500.599954;
+	tmp3[1] = -3700.218756;
 	checkpoints->push_back(tmp3);
 
-	aircraft = new Aircraft(37.315312, 55.810408, 0, 0, 1500, checkpoints);
+	aircraft = new Aircraft(0, 0, 0, 0, 100, checkpoints);
 
 	m = new std::mutex();
 	ins = new Ins(m, 2ms, 1000ms, 1000ms, aircraft);

@@ -36,7 +36,8 @@ xyz()
 
 	vel = new double[3];
 
-
+	xyz[0] = lat;
+	xyz[0] = lon;
 
 	start = false;
 	vel[0] = v;
@@ -49,17 +50,6 @@ xyz()
 
 void Aircraft::rotate(double d_pitch, double d_azimuth)
 {
-	double tmp[3] = {0, 0, 1};
-
-	rotation_matrix[0] = cos(M_PI / 180 * d_azimuth); rotation_matrix[1] = -sin(M_PI / 180 * d_azimuth); rotation_matrix[2] = 0;
-	rotation_matrix[3] = sin(M_PI / 180 * d_azimuth); rotation_matrix[4] = cos(M_PI / 180 * d_azimuth); rotation_matrix[5] = 0;
-	rotation_matrix[6] = 0;						    rotation_matrix[7] = 0; 						rotation_matrix[8] = 1;
-
-
-	auto vec = vec3_matrix33_mult(vel, rotation_matrix);
-	vel[0] = vec[0];
-	vel[1] = vec[1];
-	vel[2] = vec[2];
 
 	vec = decline(vel, tmp, d_pitch);
 	vel[0] = vec[0];
@@ -82,52 +72,71 @@ void Aircraft::fly()
 	double dist;
 	double prev_az;
 	FILE *res = fopen("../../../sfm/res.csv", "w");
+	std::vector<double> tmp_vel(3);
+	std::vector<double> tmp(3);
+	double real_angle;
 
-	fprintf(res, "x,y,z,pitch,az\n");
+	fprintf(res, "x,y,z,pitch,az,roll,target_az\n");
 	while (true)
 	{
 		prev_pitch = pitch;
 		pitch = pitch_feedback; // сохраняем предыдущий фидбек
 
 		u = pitch_control(time, 0) - pitch_feedback; // расчет функции с учетом обратной связи
-		//pitch_feedback = rungeKutta(time, time + dt, pitch_feedback, 1e-5, pitch_control); // получаем новый
 		pitch_feedback = pitch_feedback + u * dt; // получаем новый
-		pitch = (pitch_feedback - pitch) / dt * 10; // вычисление текущего угла курса
+		pitch = (pitch_feedback - pitch) / dt * 10; // вычисление текущего угла тангажа
+
+		tmp_vel[0] = vel[0];
+		tmp_vel[1] = vel[1];
+		tmp_vel[2] = 1e-100;
+		//std::cout << "vel " << vel[0] << ' ' << vel[1] << std::endl;
+		tmp[0] = 1e-100;
+		tmp[0] = 1;
+		tmp[0] = 1e-100;
+		real_angle = (scalar_product(tmp_vel, tmp)) * 180 / M_PI;
+		std::cout << az << ' ' << real_angle << std::endl;
+
 
 		prev_az = az;
 		target_az = get_az(lat_lon, *curr_checkpoint_it);
-		roll_feedback = roll_feedback + (target_az - roll_feedback) * dt;
+		u = (target_az - roll_feedback);
+		roll_feedback = roll_feedback + u * dt;
 		az = roll_feedback;
-		//std::cout << az << std::endl;
+
+//		std::cout << az << std::endl;
+//		std::cout << target_az << std::endl << std::endl;
+
 		rotate(pitch - prev_pitch, az - prev_az);
 
 		xyz[0] = xyz[0] + vel[0] * dt;
-		xyz[1] = xyz[1] + vel[1] * dt; // построить крен
+		xyz[1] = xyz[1] + vel[1] * dt;
 		xyz[2] = xyz[2] + vel[2] * dt;
-		fprintf(res, "%f,%f,%f,%f,%f\n", xyz[0], xyz[1], xyz[2], pitch, az);
-		//std::cout << xyz[0] << ',' << xyz[1] << ',' << xyz[2] << std::endl;
+		//std::cout << "vel: " << vel[0] << ',' << vel[1] << ',' << vel[2] << std::endl << std::endl;
+
+		fprintf(res, "%f,%f,%f,%f,%f,%f,%f\n", xyz[0], xyz[1], xyz[2], pitch, az, u, target_az);
+
 		st[0] = xyz[0];
 		st[1] = xyz[1];
 		st[2] = xyz[2];
 
-		geogr = fromStart2Geogr(st, M_PI / 180 * init_lat_lon[1], M_PI / 180 * init_lat_lon[0], table);
-		lat_lon[1] = geogr[0] / M_PI * 180;
-		lat_lon[0] = geogr[1] / M_PI * 180;
-		alt = geogr[2];
+		//geogr = fromStart2Geogr(st, init_lat_lon[1], init_lat_lon[0], table);
+		lat_lon[0] = xyz[0];
+		lat_lon[1] = xyz[1];
+		alt = xyz[2];
 
 		dist = calcDist(lat_lon, *curr_checkpoint_it);
-		std::cout << dist << std::endl;
+		std::cout << "dist: " << dist << std::endl;
 
-		if (dist < 1 && curr_checkpoint_it == checkpoints->end())
+		if (dist < 500 && curr_checkpoint_it == checkpoints->end())
 		{
 			return;
 		}
-		if (dist < 1)
+		if (dist < 500)
 		{
 			curr_checkpoint_it++;
 		}
 
-		std::this_thread::sleep_for(1ms);
+		std::this_thread::sleep_for(0.001ms);
 		time += dt;
 	}
 }
