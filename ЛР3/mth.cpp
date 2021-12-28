@@ -212,9 +212,9 @@ double get_az(const double departure[2], const double destination[2])
 //	return  0;//(acos(result) * 180 / M_PI); FIXME
 }
 
-std::vector<double>	cross_product(std::vector<double> u, std::vector<double> v)
+vector	cross_product(vector u, vector v)
 {
-	std::vector<double>	p(3);
+	vector	p(3);
 
 	p[0] = v[2] * u[1] - v[1] * u[2];
 	p[1] = v[0] * u[2] - v[2] * u[0];
@@ -258,13 +258,13 @@ std::vector<double> fromStart2Geogr(std::vector<double> vec, double lon, double 
 	up[1] = 1e-100;
 	up[2] = 1;
 
-	right = cross_product(up, dir);
+	//right = cross_product(up, dir);
 
 	right[0] /= len(right);
 	right[1] /= len(right);
 	right[2] /= len(right);
 
-	up = cross_product(dir, right);
+	//up = cross_product(dir, right);
 
 	up[0] /= len(up);
 	up[1] /= len(up);

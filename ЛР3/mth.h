@@ -20,5 +20,6 @@ vector decline(vector a, vector b , double angle);
 double get_az(const double departure[2], const double destination[2]);
 std::vector<double> fromStart2Geogr(std::vector<double> vec, double lon_rad, double lat_rad, std::map <int, double > &table);
 double calcDist(vector departure, vector destination);
+vector	cross_product(vector u, vector v);
 
 #endif //LW1_MTH_H

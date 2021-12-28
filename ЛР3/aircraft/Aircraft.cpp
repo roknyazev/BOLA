@@ -80,10 +80,18 @@ void Aircraft::fly()
 
 	FILE *res = fopen("../../../sfm/res.csv", "w");
 
-	fprintf(res, "x,y,z,pitch,az,target_az\n");
+	fprintf(res, "x,y,z,pitch,az,target_az,aim_pitch_target,aim_roll_target,aim_pitch,aim_roll\n");
 
 	vector tmp(3);
 	double dist;
+
+	vector sight_vec;
+	double aim_pitch = 0;
+	double aim_pitch_feedback = 0;
+	double aim_pitch_target;
+	double aim_roll = 0;
+	double aim_roll_feedback = 0;
+	double aim_roll_target;
 	while (true)
 	{
 		// расчет тангажа
@@ -98,10 +106,13 @@ void Aircraft::fly()
 		tmp = (*checkpoint - tmp) - ox;
 		target_az = atan2(tmp[1], tmp[0]);
 
-		roll = az_control(roll, target_az);
-		az_u = roll - az_feedback;
-		az_feedback = isodromic(dt, 1, 0, az_feedback, az_u);
-		az = az_feedback;
+		if (pitch <= 0.1)
+		{
+			roll = az_control(roll, target_az);
+			az_u = roll - az_feedback;
+			az_feedback = isodromic(dt, 1, 0, az_feedback, az_u);
+			az = az_feedback;
+		}
 
 		// поворот на азимут и крен вектора скорости
 		tmp[0] = cos(az);
@@ -111,6 +122,23 @@ void Aircraft::fly()
 		vel = decline(vel, oz, pitch);
 
 		xyz = xyz + (vel * dt);
+
+		sight_vec = *checkpoint - xyz;
+		aim_pitch_target = acos((sight_vec * oz) / sight_vec.length()) - (M_PI / 2);
+		tmp = cross_product(vel, oz);
+		aim_roll_target = acos((sight_vec * tmp) / (sight_vec.length() * tmp.length())) - (M_PI / 2);
+
+		aim_pitch_feedback = isodromic(dt, 1, 0, aim_pitch_feedback, aim_pitch_target - aim_pitch);
+		aim_pitch = aim_pitch_feedback;
+		if (aim_pitch > M_PI / 2)
+			aim_pitch = M_PI;
+
+		aim_roll_feedback = isodromic(dt, 1, 0, aim_roll_feedback, aim_roll_target - aim_roll);
+		aim_roll = aim_roll_feedback;
+		if (aim_roll > M_PI / 4)
+			aim_roll = M_PI / 4;
+		if (aim_roll < - M_PI / 4)
+			aim_roll = - M_PI / 4;
 
 		dist = calcDist(xyz, *checkpoint);
 		if (end && dist < 10)
@@ -129,7 +157,17 @@ void Aircraft::fly()
 		}
 
 		std::cout << dist << std::endl;
-		fprintf(res, "%f,%f,%f,%f,%f,%f\n", xyz[0], xyz[1], xyz[2], pitch, rad2deg(az), rad2deg(target_az));
+		fprintf(res, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
+				xyz[0],
+				xyz[1],
+				xyz[2],
+				pitch,
+				rad2deg(az),
+				rad2deg(target_az),
+				rad2deg(aim_pitch_target),
+				rad2deg(aim_roll_target),
+				rad2deg(aim_pitch),
+				rad2deg(aim_roll));
 		//std::this_thread::sleep_for(0.1ms);
 		time += dt;
 	}

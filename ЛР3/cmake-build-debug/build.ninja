@@ -102,6 +102,12 @@ build CMakeFiles/ins.dir/mth.cpp.o: CXX_COMPILER__ins_Debug /Users/19754886/Desk
   OBJECT_DIR = CMakeFiles/ins.dir
   OBJECT_FILE_DIR = CMakeFiles/ins.dir
 
+build CMakeFiles/ins.dir/linalg.cpp.o: CXX_COMPILER__ins_Debug /Users/19754886/Desktop/BOLA/ЛР3/linalg.cpp || cmake_object_order_depends_target_ins
+  DEP_FILE = CMakeFiles/ins.dir/linalg.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk -std=gnu++14
+  OBJECT_DIR = CMakeFiles/ins.dir
+  OBJECT_FILE_DIR = CMakeFiles/ins.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target ins
@@ -110,7 +116,7 @@ build CMakeFiles/ins.dir/mth.cpp.o: CXX_COMPILER__ins_Debug /Users/19754886/Desk
 #############################################
 # Link the executable ins
 
-build ins: CXX_EXECUTABLE_LINKER__ins_Debug CMakeFiles/ins.dir/ins/main.cpp.o CMakeFiles/ins.dir/ins/Ins.cpp.o CMakeFiles/ins.dir/transform.cpp.o CMakeFiles/ins.dir/aircraft/Aircraft.cpp.o CMakeFiles/ins.dir/mth.cpp.o
+build ins: CXX_EXECUTABLE_LINKER__ins_Debug CMakeFiles/ins.dir/ins/main.cpp.o CMakeFiles/ins.dir/ins/Ins.cpp.o CMakeFiles/ins.dir/transform.cpp.o CMakeFiles/ins.dir/aircraft/Aircraft.cpp.o CMakeFiles/ins.dir/mth.cpp.o CMakeFiles/ins.dir/linalg.cpp.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk
   OBJECT_DIR = CMakeFiles/ins.dir
   POST_BUILD = :
