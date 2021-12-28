@@ -95,6 +95,8 @@ vector vector::operator * (double rValue) const {
 vector::~vector(){
 }
 
+
+
 matrix::matrix(){
 	this->resize(0, 0);
 }

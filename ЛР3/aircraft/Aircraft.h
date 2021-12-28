@@ -19,28 +19,31 @@ private:
 	double pitch;
 	double roll;
 
-	std::list<double *> *checkpoints;
+	std::list<vector> *checkpoints;
 
-	double state[12];
+	vector ox;
+	vector oy;
+	vector oz;
+
+	double v0;
+	bool end;
 public:
+	double state[12];
+
 	Aircraft(double lat,
 			 double lon,
 			 double alt,
-			 double az,
 			 double v0,
-			 std::list<double *> *checkpoints);
+			 std::list<vector> *checkpoints);
 
 	~Aircraft();
 	Aircraft();
 	void fly();
 	bool start;
-	const double *get_state() const;
-	void rotate(double d_pitch, double azimuth);
-
-
 };
 
 double pitch_control(double t, double y);
+double az_control(double p, double target_p);
 void start_aircraft(Aircraft &aircraft);
 
 #endif //LW1_AIRCRAFT_H

@@ -5,6 +5,8 @@
 #include "iostream"
 #include "vector"
 #include "map"
+#include "mth.h"
+
 #define EARTH_RADIUS 6371
 
 double rungeKutta(double t0,
@@ -43,9 +45,9 @@ std::vector<double> vec3_matrix33_mult(const double *vec, const double *matrix)
 }
 
 
-std::vector<double> decline(const double *a, const double *b , double angle)
+vector decline(vector a, vector b , double angle)
 {
-	std::vector<double> res(3);
+	vector res(3);
 
 	double x = a[0];
 	double y = a[1];
@@ -97,7 +99,7 @@ std::vector<double> decline(const double *a, const double *b , double angle)
 	return res;
 }
 
-double calcDist(const double departure[2], const double destination[2])
+double calcDist(vector departure, vector destination)
 {
 //	double ph1 = M_PI / 180 * departure[0];
 //	double lm1 = M_PI / 180 * departure[1];

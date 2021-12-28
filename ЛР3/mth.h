@@ -16,9 +16,9 @@ double rungeKutta(double t0,
 std::vector<double> vec3_matrix33_mult(const double *vec, const double *matrix);
 double scalar_product(std::vector<double> vec1, std::vector<double> vec2);
 double len(std::vector<double> vec);
-std::vector<double> decline(const double *a, const double *b , double angle);
+vector decline(vector a, vector b , double angle);
 double get_az(const double departure[2], const double destination[2]);
 std::vector<double> fromStart2Geogr(std::vector<double> vec, double lon_rad, double lat_rad, std::map <int, double > &table);
-double calcDist(const double departure[2], const double destination[2]);
+double calcDist(vector departure, vector destination);
 
 #endif //LW1_MTH_H

@@ -8,147 +8,145 @@ Aircraft::Aircraft()
 {
 }
 
-Aircraft::Aircraft(double lat, double lon, double alt, double az, double v0, std::list<double *> *checkpoints):
-lat_lon(),
-alt(alt),
-
-az(az),
-v(v0),
-pitch(0),
-roll(0),
-
-a_x(0),
-a_y(0),
-a_z(0),
-
-state(),
-start(false),
-rotation_matrix(),
-checkpoints(checkpoints),
-xyz()
+Aircraft::Aircraft(double lat, double lon, double alt, double v0, std::list<vector> *checkpoints) :
+state()
 {
+	this->v0 = v0;
 
-	//fixme добавить мютекс
-	lat_lon[0] = lat;
-	lat_lon[1] = lon;
-	init_lat_lon[0] = lat;
-	init_lat_lon[1] = lon;
+	xyz = vector(3);
+	xyz[0] = 0;
+	xyz[1] = 0;
+	xyz[2] = 0;
 
-	vel = new double[3];
-
-	xyz[0] = lat;
-	xyz[0] = lon;
-
-	start = false;
-	vel[0] = v;
+	vel = vector(3);
+	vel[0] = v0;
 	vel[1] = 0;
 	vel[2] = 0;
 
-	rotate(0, az);
+	az = 0;
+	pitch = 0;
+	roll = 0;
+	start = false;
 
+	ox = vector(3);
+	ox[0] = 1;
+	ox[1] = 0;
+	ox[2] = 0;
+
+	oy = vector(3);
+	oy[0] = 0;
+	oy[1] = 1;
+	oy[2] = 0;
+
+	oz = vector(3);
+	oz[0] = 0;
+	oz[1] = 0;
+	oz[2] = 1;
+	this->checkpoints = checkpoints;
+	end = false;
 }
 
-void Aircraft::rotate(double d_pitch, double d_azimuth)
+double isodromic(double dt, double k1, double k2, double x0, double fx)
 {
+	return (x0 + (k1 * fx * dt)) + k2 * fx;
+}
 
-	vec = decline(vel, tmp, d_pitch);
-	vel[0] = vec[0];
-	vel[1] = vec[1];
-	vel[2] = vec[2];
+double rad2deg(double angle)
+{
+	return angle * 180 / M_PI;
+}
+
+double deg2rad(double angle)
+{
+	return angle * M_PI / 180;
 }
 
 void Aircraft::fly()
 {
-	double u;
+	std::cout << "Start" << std::endl;
 	double dt = 1e-3;
 	double time = 0;
-	double pitch_feedback = 0;// обратная связь
-	double roll_feedback = 0;// обратная связь
-	auto curr_checkpoint_it = checkpoints->begin();
-	double target_az;
-	double prev_pitch;
-	std::vector<double> geogr(3);
-	std::vector<double> st(3);
-	double dist;
-	double prev_az;
-	FILE *res = fopen("../../../sfm/res.csv", "w");
-	std::vector<double> tmp_vel(3);
-	std::vector<double> tmp(3);
-	double real_angle;
 
-	fprintf(res, "x,y,z,pitch,az,roll,target_az\n");
+	auto checkpoint = checkpoints->begin();
+
+	double pitch_u;
+	double pitch_feedback = 0;
+
+	double target_az;
+
+	double az_u;
+	double az_feedback = 0;
+
+
+	FILE *res = fopen("../../../sfm/res.csv", "w");
+
+	fprintf(res, "x,y,z,pitch,az,target_az\n");
+
+	vector tmp(3);
+	double dist;
 	while (true)
 	{
-		prev_pitch = pitch;
-		pitch = pitch_feedback; // сохраняем предыдущий фидбек
+		// расчет тангажа
+		pitch = pitch_feedback;
+		pitch_u = pitch_control(time, 0) - pitch_feedback;
+		pitch_feedback = isodromic(dt, 1, 0, pitch_feedback, pitch_u);
+		pitch = (pitch_feedback - pitch) / dt;
 
-		u = pitch_control(time, 0) - pitch_feedback; // расчет функции с учетом обратной связи
-		pitch_feedback = pitch_feedback + u * dt; // получаем новый
-		pitch = (pitch_feedback - pitch) / dt * 10; // вычисление текущего угла тангажа
+		// расчет азимута
+		tmp = xyz;
+		tmp[2] = 0;
+		tmp = (*checkpoint - tmp) - ox;
+		target_az = atan2(tmp[1], tmp[0]);
 
-		tmp_vel[0] = vel[0];
-		tmp_vel[1] = vel[1];
-		tmp_vel[2] = 1e-100;
-		//std::cout << "vel " << vel[0] << ' ' << vel[1] << std::endl;
-		tmp[0] = 1e-100;
-		tmp[0] = 1;
-		tmp[0] = 1e-100;
-		real_angle = (scalar_product(tmp_vel, tmp)) * 180 / M_PI;
-		std::cout << az << ' ' << real_angle << std::endl;
+		roll = az_control(roll, target_az);
+		az_u = roll - az_feedback;
+		az_feedback = isodromic(dt, 1, 0, az_feedback, az_u);
+		az = az_feedback;
 
+		// поворот на азимут и крен вектора скорости
+		tmp[0] = cos(az);
+		tmp[1] = sin(az);
+		tmp[2] = 0;
+		vel = tmp * v0;
+		vel = decline(vel, oz, pitch);
 
-		prev_az = az;
-		target_az = get_az(lat_lon, *curr_checkpoint_it);
-		u = (target_az - roll_feedback);
-		roll_feedback = roll_feedback + u * dt;
-		az = roll_feedback;
+		xyz = xyz + (vel * dt);
 
-//		std::cout << az << std::endl;
-//		std::cout << target_az << std::endl << std::endl;
-
-		rotate(pitch - prev_pitch, az - prev_az);
-
-		xyz[0] = xyz[0] + vel[0] * dt;
-		xyz[1] = xyz[1] + vel[1] * dt;
-		xyz[2] = xyz[2] + vel[2] * dt;
-		//std::cout << "vel: " << vel[0] << ',' << vel[1] << ',' << vel[2] << std::endl << std::endl;
-
-		fprintf(res, "%f,%f,%f,%f,%f,%f,%f\n", xyz[0], xyz[1], xyz[2], pitch, az, u, target_az);
-
-		st[0] = xyz[0];
-		st[1] = xyz[1];
-		st[2] = xyz[2];
-
-		//geogr = fromStart2Geogr(st, init_lat_lon[1], init_lat_lon[0], table);
-		lat_lon[0] = xyz[0];
-		lat_lon[1] = xyz[1];
-		alt = xyz[2];
-
-		dist = calcDist(lat_lon, *curr_checkpoint_it);
-		std::cout << "dist: " << dist << std::endl;
-
-		if (dist < 500 && curr_checkpoint_it == checkpoints->end())
-		{
+		dist = calcDist(xyz, *checkpoint);
+		if (end && dist < 10)
 			return;
-		}
-		if (dist < 500)
+		if (dist < 10)
+			checkpoint++;
+		if (checkpoint == checkpoints->end())
 		{
-			curr_checkpoint_it++;
+			checkpoint--;
+			std::cout << "123" << std::endl;
+			(*checkpoint)[0] = 0;
+			(*checkpoint)[1] = 0;
+			(*checkpoint)[2] = 0;
+			std::cout << "123" << std::endl;
+			end = true;
 		}
 
-		std::this_thread::sleep_for(0.001ms);
+		std::cout << dist << std::endl;
+		fprintf(res, "%f,%f,%f,%f,%f,%f\n", xyz[0], xyz[1], xyz[2], pitch, rad2deg(az), rad2deg(target_az));
+		//std::this_thread::sleep_for(0.1ms);
 		time += dt;
 	}
 }
 
-const double *Aircraft::get_state() const
-{
-	return this->state;
-}
-
 Aircraft::~Aircraft()
 {
-	delete []vel;
+
+}
+
+double az_control(double p, double target_p)
+{
+	if (target_p > p)
+		p += 0.001;
+	else
+		p -= 0.001;
+	return p;
 }
 
 double pitch_control(double t, double y)

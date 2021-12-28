@@ -50,23 +50,29 @@ int main()
 	std::mutex			*m;
 	Ins 				*ins;
 	Aircraft			*aircraft;
-	auto *checkpoints = new std::list<double *>;
-	auto tmp1 = new double[2];
-	auto tmp2 = new double[2];
-	auto tmp3 = new double[2];
+	auto *checkpoints = new std::list<vector>;
+	auto tmp1 = vector(3);
+	auto tmp2 = vector(3);
+	auto tmp3 = vector(3);
 
+	tmp1[0] = 1000;
+	tmp1[1] = 1000;
+	tmp1[2] = 0;
 
-	tmp1[0] = 5600.0;
-	tmp1[1] = 5600.0;
 	checkpoints->push_back(tmp1);
-	tmp2[0] = -5500.744307;
-	tmp2[1] = 3700.409644;
+
+	tmp2[0] = 1000;
+	tmp2[1] = -1000;
+	tmp2[2] = 0;
 	checkpoints->push_back(tmp2);
-	tmp3[0] = 5500.599954;
-	tmp3[1] = -3700.218756;
+
+	tmp3[0] = -1000;
+	tmp3[1] = 1000;
+	tmp3[2] = 0;
 	checkpoints->push_back(tmp3);
 
-	aircraft = new Aircraft(0, 0, 0, 0, 100, checkpoints);
+
+	aircraft = new Aircraft(0, 0, 0, 100, checkpoints);
 
 	m = new std::mutex();
 	ins = new Ins(m, 2ms, 1000ms, 1000ms, aircraft);
