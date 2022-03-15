@@ -61,6 +61,46 @@ double deg2rad(double angle)
 	return angle * M_PI / 180;
 }
 
+struct params
+{
+	vector coordinates;
+	vector V;
+	double g;
+	double dt;
+	int index;
+};
+
+void asp(params &p)
+{
+	vector coordinates(3) ;
+	vector V(3) ;
+	double g = p.g;
+	double dt = p.dt;
+	int index = p.index;
+
+	coordinates[0] = p.coordinates[0];
+	coordinates[1] = p.coordinates[1];
+	coordinates[2] = p.coordinates[2];
+	V[0] = p.V[0];
+	V[1] = p.V[1];
+	V[2] = p.V[2];
+	std::string filename = "../../../sfm/res_asp";
+	filename += std::to_string(index);
+	filename += ".scv";
+	FILE *res = fopen(filename.c_str(), "w");
+
+	fprintf(res, "x,y,z\n");
+	while (coordinates[2] > 0)
+	{
+		V[2] = V[2] - g * dt;
+		coordinates[2] = coordinates[2] + V[2]*dt - g * pow(dt, 2)  / 2;
+		coordinates[0] = coordinates[0] + V[0] * dt;
+		coordinates[1] = coordinates[1] + V[1] * dt;
+		fprintf(res, "%f,%f,%f\n", coordinates[0], coordinates[1], coordinates[2]);
+	}
+	fclose(res);
+}
+
 void Aircraft::fly()
 {
 	std::cout << "Start" << std::endl;
@@ -92,6 +132,12 @@ void Aircraft::fly()
 	double aim_roll = 0;
 	double aim_roll_feedback = 0;
 	double aim_roll_target;
+	double A;
+	double g = 9.81;
+	auto *par = new params();
+	std::thread	*thread;
+	int asp_index = 0;
+	bool drop = false;
 	while (true)
 	{
 		// расчет тангажа
@@ -141,22 +187,40 @@ void Aircraft::fly()
 			aim_roll = - M_PI / 4;
 
 		dist = calcDist(xyz, *checkpoint);
+		A = sqrt(pow(vel[0], 2) + pow(vel[1], 2)) * (sqrt(2 * xyz[2] / g));
+		if (A < dist + 5 && A > dist - 5 && !drop && !end)
+		{
+			std::cout << asp_index << std::endl;
+			asp_index++;
+			par->coordinates = xyz;
+			par->V = vel;
+			par->dt = dt;
+			par->g = g;
+			par->index = asp_index;
+			thread = new std::thread(asp, std::ref(*par));
+			thread->detach();
+			drop = true;
+		}
+
+
 		if (end && dist < 10)
 			return;
 		if (dist < 10)
+		{
 			checkpoint++;
+			drop = false;
+		}
+
 		if (checkpoint == checkpoints->end())
 		{
 			checkpoint--;
-			std::cout << "123" << std::endl;
 			(*checkpoint)[0] = 0;
 			(*checkpoint)[1] = 0;
 			(*checkpoint)[2] = 0;
-			std::cout << "123" << std::endl;
 			end = true;
 		}
 
-		std::cout << dist << std::endl;
+		//std::cout << dist << std::endl;
 		fprintf(res, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
 				xyz[0],
 				xyz[1],
